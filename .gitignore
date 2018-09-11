@@ -1,0 +1,5 @@
+*.pyc
+*.tar.gz
+
+*.npy
+/tiny-imagenet-200
