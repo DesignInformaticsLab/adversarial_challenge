@@ -177,11 +177,6 @@ def XceptionModel(input_image, num_classes, is_training = False, data_format='ch
     inputs = tf.layers.batch_normalization(inputs, momentum=BN_MOMENTUM, name='block14_sepconv2_bn', axis=bn_axis,
                             epsilon=BN_EPSILON, training=is_training, reuse=None, fused=USE_FUSED_BN)
 
-    feature2 = slim.fully_connected(inputs, num_outputs=32,weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),weights_regularizer=slim.l2_regularizer(0.0005))
-    #feature1 = tf.zeros([128,2])
-    #feature2 = tf.zeros([128,2])
-    feature1 = slim.fully_connected(inputs, num_outputs=2,weights_initializer=tf.truncated_normal_initializer(0.0, 0.01),weights_regularizer=slim.l2_regularizer(0.0005))
-
     inputs = tf.nn.relu(inputs, name='block14_sepconv2_act')
 
     if data_format == 'channels_first':
@@ -201,9 +196,8 @@ def XceptionModel(input_image, num_classes, is_training = False, data_format='ch
                             kernel_initializer=tf.contrib.layers.xavier_initializer(),
                             bias_initializer=tf.zeros_initializer(),
                             name='dense', reuse=None)
-    feature_list = [feature1, feature2]
 
-    return outputs, feature_list
+    return outputs
 
 
 
