@@ -1,11 +1,12 @@
 import tensorflow as tf
+#from xception_batch import *
 from Xception import *
 import numpy as np
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
 
 NUM_CLASSES = 200
-batch_size = 1
+batch_size = 24
 
 with tf.name_scope('input'):
     input_images = tf.placeholder(tf.float32,  shape = (batch_size, 64, 64, 3), name = 'input_images')
@@ -51,22 +52,32 @@ shuffle(idx_v)
 test_images = test_images[idx_v] 
 test_labels = test_labels[idx_v]
 
+#not_restore = ['fully_connected/biases:0','fully_connected/weights:0','fully_connected_1/biases:0','fully_connected_1/weights:0','dense/kernel:0','dense/bias:0']
+
 not_restore = ['fully_connected/biases:0','fully_connected/weights:0','fully_connected_1/biases:0','fully_connected_1/weights:0','dense/kernel:0','dense/bias:0']
 
-restore_var = [v for v in tf.trainable_variables() if v.name not in not_restore]
+restore_var = [v for v in tf.global_variables() if v.name not in not_restore]
 #print(restore_var)
 
-var_list = [v for v in tf.trainable_variables() if v.name not in restore_var]
+#var_list = [v for v in tf.trainable_variables() if v.name not in restore_var]
 
 optimizer = tf.train.AdamOptimizer(0.0001)
 
-train_op = optimizer.minimize(total_loss)
+update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+with tf.control_dependencies(update_ops):
+    train_op = optimizer.minimize(total_loss)
+
+
+
 summary_op = tf.summary.merge_all()
 sess = tf.Session()
-saver = tf.train.Saver()
+saver = tf.train.Saver(var_list = tf.global_variables())
 restorer = tf.train.Saver(restore_var)
 init = tf.global_variables_initializer()
 sess.run(init)
+
+#print([op.name for op in tf.get_default_graph().get_operations() if op.op_def and op.op_def.name=='VariableV2'])
+
 restorer.restore(sess, "./checkpoints/xception_model.ckpt")
 
 
@@ -96,7 +107,7 @@ for ep_i in range(5):
           format(ep_i, np.mean(train_acc), np.mean(train_loss),np.mean(val_acc),np.mean(testing_acc))))
 
 
-saver.save(sess,'./model_save_base_1/center_loss.ckpt')
+saver.save(sess,'./model_save_softmax_fixed/center_loss.ckpt')
 
 
 

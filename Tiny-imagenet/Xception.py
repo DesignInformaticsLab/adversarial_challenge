@@ -192,7 +192,7 @@ def XceptionModel(input_image, num_classes, is_training = False, data_format='ch
         inputs = tf.squeeze(inputs, axis=[1, 2])
 
     outputs = tf.layers.dense(inputs, num_classes,
-                            activation=tf.nn.softmax, use_bias=True,
+                            activation=None, use_bias=True,
                             kernel_initializer=tf.contrib.layers.xavier_initializer(),
                             bias_initializer=tf.zeros_initializer(),
                             name='dense', reuse=None)
